@@ -1,9 +1,18 @@
 import Product from "../model/product.js";
+import { verifyJWT } from "../utils/jwt.js";
 
 const getProductsController = async (req, res) => {
   try {
+    const token = req.query.token;
+    if (!token) {
+      return res.status(401).json({error: "Token required"});
+    }
+    const decoded = verifyJWT(token);
+    if (!decoded) {
+      return res.status(401).json({error: "Invalid Token"});
+    }
     const products = await Product.find();
-    res.json(products);
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "Error fetching products" });
   }
